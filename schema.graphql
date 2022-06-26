@@ -5,6 +5,11 @@ interface UserTransaction {
   timestamp: Int!
 }
 
+type ContractToPoolMapping @entity {
+  id: ID!
+  pool: Pool!
+}
+
 type Deposit implements UserTransaction @entity {
   id: ID!
   pool: Pool!
@@ -95,6 +100,31 @@ type DTokenBalanceHistoryItem @entity {
   currentVariableDebt: BigInt!
   timestamp: Int!
   index: BigInt!
+}
+
+type Pool @entity {
+  id: ID!
+  protocol: Protocol!
+  lendingPool: Bytes
+  lendingPoolCollateralManager: Bytes
+  lendingPoolConfigurator: Bytes
+
+  configurationAdmin: Bytes
+  ethereumAddress: Bytes
+  emergencyAdmin: Bytes
+  lastUpdateTimestamp: Int!
+
+  reserves: [Reserve!]! @derivedFrom(field: "pool")
+  depositHistory: [Deposit!]! @derivedFrom(field: "pool")
+  withdrawHistory: [Withdraw!]! @derivedFrom(field: "pool")
+  borrowHistory: [Borrow!]! @derivedFrom(field: "pool")
+
+  usageAsCollateralHistory: [UsageAsCollateral!]! @derivedFrom(field: "pool")
+  repayHistory: [Repay!]! @derivedFrom(field: "pool")
+  liquidationCallHistory: [LiquidationCall!]! @derivedFrom(field: "pool")
+
+  active: Boolean!
+  paused: Boolean!
 }
 
 type Reserve @entity {
