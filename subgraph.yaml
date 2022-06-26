@@ -1,0 +1,52 @@
+variables:
+  network: celo-alfajores
+  startBlock: 11544341
+  LendingPoolAddress: "0x61CDB71DCD2B240F2113196d9Fa9bd1E3eF0C0E2"
+
+specVersion: 0.0.2
+description: KEEP-Subgraph
+repository: https://github.com/bunny-sleepy/KEEP-ETH-NYC-Subgraphs
+schema:
+  file: ./schema.graphql
+
+dataSources:
+  - kind: ethereum/contract
+    name: LendingPool
+    network: $(network)
+    source:
+      address: $(LendingPoolAddress)
+      abi: LendingPool
+      startBlock: $(startBlock)
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - Reserve
+        - UserReserve
+        - User
+      abis:
+        - name: LendingPool
+          file: ./abis/LendingPool.json
+      eventHandlers:
+        - event: Deposit(indexed address,address,indexed address,uint256)
+          handler: handleDeposit
+        - event: Withdraw(indexed address,indexed address,indexed address,uint256)
+          handler: handleWithdraw
+        - event: Borrow(indexed address,address,indexed address,uint256,uint256,uint256)
+          handler: handleBorrow
+        - event: Repay(indexed address,indexed address,indexed address,uint256)
+          handler: handleRepay
+        - event: ReserveUsedAsCollateralEnabled(indexed address,indexed address)
+          handler: handleReserveUsedAsCollateralEnabled
+        - event: ReserveUsedAsCollateralDisabled(indexed address,indexed address)
+          handler: handleReserveUsedAsCollateralDisabled
+        - event: LiquidationCall(indexed address,indexed address,indexed address,uint256,uint256,address,bool)
+          handler: handleLiquidationCall
+        - event: Paused()
+          handler: handlePaused
+        - event: Unpaused()
+          handler: handleUnpaused
+        - event: ReserveDataUpdated(indexed address,uint256,uint256,uint256,uint256,uint256)
+          handler: handleReserveDataUpdated
+      file: ./src/mapping.ts
